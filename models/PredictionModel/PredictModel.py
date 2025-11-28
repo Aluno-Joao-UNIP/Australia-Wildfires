@@ -1,6 +1,5 @@
 import pickle 
 import pandas as pd
-import numpy as np
 from datetime import datetime
 import os
 
@@ -15,9 +14,13 @@ class PredictModel:
         print(f"Carregando modelo de: {model_path}")
         try:
             with open(model_path, "rb") as f:
-                model = pickle.load(f)
-            print("Modelo carregado.")
-            return model
+                model_data = pickle.load(f)
+            
+            if isinstance(model_data, dict):
+                print("Modelo carregado.")
+                return model_data
+            
+            return {"model": model_data}
         except Exception as e:
             print(f"Erro ao carregar modelo: {e}")
             exit()
@@ -76,7 +79,8 @@ class PredictModel:
             "satellite_encoded": [satellite_encoded]
         })
         
-        rf_intensity = self.load_model()
+        model_data = self.load_model()
+        rf_intensity = model_data["model"]
 
         prediction = rf_intensity.predict(input_data)[0]
         proba = rf_intensity.predict_proba(input_data)[0]

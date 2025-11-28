@@ -3,7 +3,6 @@ import requests
 import os
 import glob
 from datetime import datetime, timedelta
-import time
 
 class Datas:
     def __init__(self):

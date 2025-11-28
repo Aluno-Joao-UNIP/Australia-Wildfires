@@ -22,6 +22,8 @@ class PredictionsPage(BasePage):
     # Execução
     # =================================================================================================================================================
     def run(self):
+        predict = PredictModel()
+
         self.apply_config()
 
         def run_home():
@@ -43,7 +45,7 @@ class PredictionsPage(BasePage):
                     ''',
                     unsafe_allow_html = True)
 
-                col1, col2, col3 = st.columns([1.2, 1.3, 1])
+                col1, col2, col3 = st.columns([1.2, 1, 1])
 
                 with col2:
                     if st.button("Iniciar Treinamento"):
@@ -55,23 +57,21 @@ class PredictionsPage(BasePage):
             
         def run_loading():
             st.title("⚙️ Treinando o Modelo")
-            st.divider()
-            
 
-            with st.spinner("O modelo está sendo treinado..."):
-                st.markdown("**Tempo estimado: 3 a 5 minutos**")
+            with st.spinner("O modelo está sendo treinado... Tempo estimado: (3 a 5 min)"):
                 progress_bar = st.progress(0)
                 status_text = st.empty()
 
-                df_clean, feature_importance, accuracy, cm = model.training()
-                st.session_state.model = df_clean, feature_importance, accuracy, cm
-                progress_bar.progress(100)
-                status_text.text(f"Treinando modelo... {100}% concluído")
-                time.sleep(3)
+                model = ModelTrainig()
+                model.training()
+                for i in range(100):
+                    time.sleep(0.2)
+                    progress_bar.progress(i + 1)
+                    status_text.text(f"Treinando modelo... {i+1}% concluído")
 
                 progress_bar.empty()
                 status_text.text("✅ Treinamento concluído!")
-                time.sleep(3)
+                time.sleep(2)
 
             st.success("Treinamento finalizado com sucesso!")
             st.session_state.page = "predict"
@@ -106,7 +106,7 @@ class PredictionsPage(BasePage):
                 else:
                     st.info("Escolha uma data futura:")
 
-                initial_map = folium.Map(location = [-28.0, 139.0], zoom_start = 4.4)
+                initial_map = folium.Map(location = [-28.0, 139.5], zoom_start = 4.4)
 
                 map_data = st_folium(initial_map, width = 700, height = 500)
                 selectMap = False
@@ -122,29 +122,23 @@ class PredictionsPage(BasePage):
                 col1, col2, col3 = st.columns([1.2, 1, 1])
 
                 with col2:
-                    confirm = st.button("Iniciar Predição")
-                    
-                if confirm:
-                    if selectMap and selected_data != date.today():
-                            prediction = predict.predict_fire(lat, lon, month, day, year)
-                            st.session_state.result = prediction
-                            st.session_state.page = "dashs"
-                                        
-                    else:
-                        st.error("Preencha todas as informacoes para realizar a predicao.")
+                    if st.button("Iniciar Predição"):
+                        if selectMap and selected_data != date.today():
+                                prediction = predict.predict_fire(lat, lon, month, day, year)
+                                st.session_state.page = "dashs"
+                                st.session_state.result = prediction
+                                            
+                        else:
+                            st.error("Preencha todas as informacoes para realizar a predicao.")
                 
                 with col3:
                     st.empty()
 
         def run_dashs(): 
-            try:
-                df_clean, feature_importance, accuracy, cm = st.session_state.model
-                prediction = st.session_state.result
-                pred_dashs = PredicitonsDashboards(df_clean, feature_importance, accuracy, cm, prediction)
-                pred_dashs.predictions_dashboards()
-            except Exception as e:
-                df_clean, feature_importance, accuracy, cm = st.session_state.model
-                prediction = st.session_state.result
+            prediction = st.session_state.result
+            pred_dashs = PredicitonsDashboards(prediction)
+
+            pred_dashs.predictions_dashboards()
 
         file = "fire_model.pkl"
         directory = os.getcwd()
@@ -155,9 +149,6 @@ class PredictionsPage(BasePage):
             st.session_state.result = 0
             if os.path.isfile(path_file):
                 st.session_state.page = "predict"
-                
-        model = ModelTrainig()
-        predict = PredictModel()
 
         if st.session_state.page == "home":
             run_home()
@@ -167,4 +158,5 @@ class PredictionsPage(BasePage):
             run_predict()
         elif st.session_state.page == "dashs":
             run_dashs()
+
     
