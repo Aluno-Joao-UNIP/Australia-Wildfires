@@ -89,14 +89,14 @@ class DashboardsPage(BasePage):
         
         st.sidebar.header("🗓️ Datas")
         
-        years_available = sorted(df["year"].unique(), reverse=True)
-        years_selec = st.sidebar.selectbox("Ano", options=["Todos"] + list(years_available), index=0)
+        years_available = sorted(df["year"].unique(), reverse = True)
+        years_selec = st.sidebar.selectbox("Ano", options = years_available, index = 0)
 
         if years_selec == "Todos":
             months_available = list(df["month_name"].unique())
         else:
             months_available = list(df.loc[df["year"] == years_selec, "month_name"].unique())
-        months_selec = st.sidebar.selectbox("Mês", options=["Todos"] + months_available, index=0)
+        months_selec = st.sidebar.selectbox("Mês", options=["Todos"] + months_available, index = 0)
 
         if months_selec == "Todos":
             days_available = sorted(df["day"].unique())
