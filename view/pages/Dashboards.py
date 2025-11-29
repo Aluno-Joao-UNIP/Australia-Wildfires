@@ -146,7 +146,8 @@ class DashboardsPage(BasePage):
         fig_map.update_layout(height=600)
 
         df_states = filtered_df.groupby("states").size().reset_index(name="total").sort_values(by="total", ascending=True)
-        
+        df_states = df_states[df_states["states"] != "N/A"]
+
         fig_states = px.bar(
             df_states,
             x="total",
@@ -158,7 +159,8 @@ class DashboardsPage(BasePage):
             color_discrete_sequence=["#BC3952"]
         )
         
-        fig_states.update_layout(coloraxis_showscale=False)
+        fig_states.update_layout(coloraxis_showscale = False)
+        fig_states.update_xaxes(showticklabels = False)
 
         df_dates = filtered_df.groupby("acq_date").size().reset_index(name="total")
         
