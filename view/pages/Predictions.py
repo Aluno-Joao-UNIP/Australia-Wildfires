@@ -140,6 +140,12 @@ class PredictionsPage(BasePage):
 
             pred_dashs.predictions_dashboards()
 
+            col1, col2, col3 = st.columns([1.2, 1, 1])
+
+            with col2:
+                if st.button("Voltar para Predição"):
+                    st.session_state.page = "predict"
+
         file = "fire_model.pkl"
         directory = os.getcwd()
         path_file = os.path.join(directory, file)
